@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Curvolution Visualizer</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<style>
+body {
+	color: #000;
+	font-family: Monospace;
+	font-size: 13px;
+	text-align: center;
+	font-weight: bold;
+	background-color: #fff;
+	margin: 0px;
+	overflow: hidden;
+}
+.side {
+  margin-left: 1cm;
+  margin-right: 1cm;
+  margin-top: 1cm;
+  margin-bottom: 1.5cm;
+}
+
+#slider_c {
+  height: 800px;
+}
+</style>
+<link href="css/nouislider.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <div style="width: 100%;">
+	<div style="float: left; width: 20%">
+	   	<div class="side">
+        		Specify the Curvolution file: <input type="file" id="fileInput">
+      		</div>
+		<div class="side" id="slider_c"></div>
+	 </div>
+	
+	  <div style="float: right; width: 80%">
+	    <div id="container"></div>
+	  </div>
+  </div>
+  <div style="clear:both"></div>
+	
+	<script src="js/three.min.js"></script>
+	<script src="js/controls/TrackballControls.js"></script>
+	<script src="js/Detector.js"></script>
+	<script src="js/libs/stats.min.js"></script>
+	<script src="js/nouislider.min.js"></script>
+
+	<script>
+    function interpolate( val, y0, x0, y1, x1 ) {
+    	return (val-x0)*(y1-y0)/(x1-x0) + y0;
+    }
+
+    function base( val ) {
+    	if ( val <= -0.75 ) return 0;
+	    else if ( val <= -0.25 ) return interpolate( val, 0.0, -0.75, 1.0, -0.25 );
+	    else if ( val <= 0.25 ) return 1.0;
+	    else if ( val <= 0.75 ) return interpolate( val, 1.0, 0.25, 0.0, 0.75 );
+	    else return 0.0;
+    }
+
+    function red( gray ) {
+	    return base( gray - 0.5 );
+	  }
+    function green( gray ) {
+	    return base( gray );
+	  }
+    function blue( gray ) {
+	    return base( gray + 0.5 );
+	  }
+	
+		var container, stats;
+		var camera, controls, scene, renderer;
+		var curves_json, curves_scene;
+
+		var slider_c = document.getElementById('slider_c');
+
+		window.onload = function() {
+			var fileInput = document.getElementById('fileInput');
+
+			fileInput.addEventListener('change', function(e) {
+				var file = fileInput.files[0];
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					curves_json = JSON.parse(e.target.result);
+					//console.log(curves_json);
+					initSliders();
+					initRendering();
+					addCurves();
+					animate();
+				}
+				reader.readAsText(file);
+			});
+		}
+
+		function initSliders() {
+			var C = curves_json.dims[0];
+
+		        noUiSlider.create(slider_c, {
+				start : [ 0, C ],
+				connect : true,
+				orientation: 'vertical',
+				step : 32,
+				range : {
+					min : 0,
+					max : C
+				},
+				pips : {
+					mode : 'steps',
+					density : 3
+				}
+			});
+			
+		        slider_c.noUiSlider.on('end', function() {
+				addCurves();
+			});
+		};
+
+		function addCurves() {
+			scene.remove(curves_scene);
+			curves_scene = new THREE.Object3D();
+			scene.add(curves_scene);
+
+			var C = curves_json.dims[0];
+			var L = curves_json.dims[1];
+
+			var s_c = Math.round(slider_c.noUiSlider.get()[0]);
+			var e_c = Math.round(slider_c.noUiSlider.get()[1]);
+			
+			var points_material = new THREE.PointsMaterial({
+				size : 0.01,
+				vertexColors : THREE.VertexColors
+			});
+			var lines_material = new THREE.LineBasicMaterial({
+				linewidth : 2,
+				vertexColors : THREE.VertexColors
+			});
+			for (var c = s_c; c < e_c; c++) {
+				var max_w = Number.MIN_VALUE;
+				var min_w = Number.MAX_VALUE;
+				for (var l = 0; l < L; l++) {
+					var idx = c * L + l;
+					var value = curves_json.samples[idx][3];
+					max_w = Math.max(max_w, value);
+					min_w = Math.min(min_w, value);
+				}
+				var d_w = max_w - min_w;
+				var geometry = new THREE.Geometry();
+				for (var l = 0; l < L; l++) {
+					var idx = c * L + l;
+					var sample = curves_json.samples[idx];
+					var weight = 2*((sample[3] - min_w) / d_w-0.5);
+					geometry.colors.push(new THREE.Color(red(weight), green(weight), blue(weight)));
+					geometry.vertices.push(new THREE.Vector3(sample[0], sample[1], sample[2]));
+				}
+				var points = new THREE.Points(geometry, points_material);
+				curves_scene.add(points);
+				var lines = new THREE.Line(geometry, lines_material);
+				curves_scene.add(lines);
+			}
+			
+			render();
+		}
+
+		var debugAxes = function(axisLength) {
+			//Shorten the vertex function
+			function v(x, y, z) {
+				return new THREE.Vector3(x, y, z);
+			}
+
+			//Create axis (point1, point2, colour)
+			function createAxis(p1, p2, color) {
+				var line, lineGeometry = new THREE.Geometry(), lineMat = new THREE.LineBasicMaterial(
+						{
+							color : color,
+							linewidth : 3
+						});
+				lineGeometry.vertices.push(p1, p2);
+				line = new THREE.Line(lineGeometry, lineMat);
+				scene.add(line);
+			}
+
+			createAxis(v(-axisLength/2, -axisLength/2, -axisLength/2), v(axisLength/2, -axisLength/2, -axisLength/2), 0xFF0000);
+			createAxis(v(-axisLength/2, -axisLength/2, -axisLength/2), v(-axisLength/2, axisLength/2, -axisLength/2), 0x00FF00);
+			createAxis(v(-axisLength/2, -axisLength/2, -axisLength/2), v(-axisLength/2, -axisLength/2, axisLength/2), 0x0000FF);
+			createAxis(v(axisLength/2, axisLength/2, axisLength/2), v(-axisLength/2, axisLength/2, axisLength/2), 0xAAAAAA);
+			createAxis(v(axisLength/2, axisLength/2, axisLength/2), v(axisLength/2, -axisLength/2, axisLength/2), 0xAAAAAA);
+			createAxis(v(axisLength/2, axisLength/2, axisLength/2), v(axisLength/2, axisLength/2, -axisLength/2), 0xAAAAAA);
+			createAxis(v(axisLength/2, axisLength/2, -axisLength/2), v(axisLength/2, -axisLength/2, -axisLength/2), 0xAAAAAA);
+			createAxis(v(axisLength/2, axisLength/2, -axisLength/2), v(-axisLength/2, axisLength/2, -axisLength/2), 0xAAAAAA);
+			createAxis(v(axisLength/2, -axisLength/2, axisLength/2), v(-axisLength/2, -axisLength/2, axisLength/2), 0xAAAAAA);
+			createAxis(v(axisLength/2, -axisLength/2, axisLength/2), v(axisLength/2, -axisLength/2, -axisLength/2), 0xAAAAAA);
+			createAxis(v(-axisLength/2, axisLength/2, axisLength/2), v(-axisLength/2, axisLength/2, -axisLength/2), 0xAAAAAA);
+			createAxis(v(-axisLength/2, axisLength/2, axisLength/2), v(-axisLength/2, -axisLength/2, axisLength/2), 0xAAAAAA);
+		};
+
+		if (!Detector.webgl)
+			Detector.addGetWebGLMessage();
+
+		function initRendering() {
+			camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+			camera.position.x = 1;
+			camera.position.y = 0.5;
+			camera.position.z = 1.5;
+
+			controls = new THREE.TrackballControls(camera);
+
+			controls.rotateSpeed = 1.0;
+			controls.zoomSpeed = 1.2;
+			controls.panSpeed = 0.8;
+
+			controls.noZoom = false;
+			controls.noPan = false;
+
+			controls.staticMoving = true;
+			controls.dynamicDampingFactor = 0.3;
+
+			controls.keys = [ 65, 83, 68 ];
+			controls.addEventListener('change', render);
+
+			scene = new THREE.Scene();
+			
+			// curves
+			curves_scene = new THREE.Object3D();
+			scene.add(curves_scene);
+			
+			
+			// axes
+			debugAxes(1.0);
+
+			// lights
+			light = new THREE.DirectionalLight(0xffffff);
+			light.position.set(0, -1, 0);
+			scene.add(light);
+
+			light = new THREE.HemisphereLight(0xffffff, 0x080808);
+			scene.add(light);
+
+			// renderer
+			renderer = new THREE.WebGLRenderer({
+				antialias : false,
+				alpha : true
+			});
+			renderer.setClearColor(0xffffff, 0);
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+			container = document.getElementById('container');
+			container.appendChild(renderer.domElement);
+
+			stats = new Stats();
+			stats.domElement.style.position = 'fixed';
+			stats.domElement.style.bottom = '10px';
+			stats.domElement.style.right = '10px';
+			stats.domElement.style.zIndex = 100;
+			container.appendChild(stats.domElement);
+
+			window.addEventListener('resize', onWindowResize, false);
+
+			render();
+		}
+
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			controls.handleResize();
+			render();
+		}
+
+		function animate() {
+			requestAnimationFrame(animate);
+			controls.update();
+		}
+
+		function render() {
+			renderer.render(scene, camera);
+			stats.update();
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindowClass</class>
+ <widget class="QMainWindow" name="MainWindowClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1301</width>
+    <height>739</height>
+   </rect>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::StrongFocus</enum>
+  </property>
+  <property name="windowTitle">
+   <string>ReDevelop</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1301</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionSetWorkspace"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpenPointCloud"/>
+    <addaction name="actionSavePointCloud"/>
+    <addaction name="separator"/>
+    <addaction name="actionImportMeshModels"/>
+    <addaction name="actionClearMeshModels"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpenDistanceField"/>
+    <addaction name="actionSaveDistanceField"/>
+   </widget>
+   <widget class="QMenu" name="menuAlgorithms">
+    <property name="title">
+     <string>Algorithms</string>
+    </property>
+    <addaction name="actionNormalEstimation"/>
+    <addaction name="actionCurvatureEstimation"/>
+    <addaction name="actionNormalOrientation"/>
+    <addaction name="actionFlipAllNormals"/>
+    <addaction name="actionVoxelGridFilter"/>
+    <addaction name="separator"/>
+    <addaction name="actionSampleScan"/>
+    <addaction name="actionBuildDistanceField"/>
+    <addaction name="actionVirtualScan"/>
+   </widget>
+   <widget class="QMenu" name="menuVisualization">
+    <property name="title">
+     <string>Visualization</string>
+    </property>
+    <addaction name="actionTogglePointCloud"/>
+    <addaction name="actionToggleCloudNormals"/>
+    <addaction name="actionToggleCloudDraggers"/>
+    <addaction name="actionToggleCloudScalers"/>
+    <addaction name="separator"/>
+    <addaction name="actionToggleMeshModels"/>
+    <addaction name="separator"/>
+    <addaction name="actionColorizeOriginal"/>
+    <addaction name="actionColorizeUniform"/>
+    <addaction name="separator"/>
+    <addaction name="actionToggleDistanceField"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuAlgorithms"/>
+   <addaction name="menuVisualization"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar_2</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <action name="actionSetWorkspace">
+   <property name="text">
+    <string>Set Workspace</string>
+   </property>
+  </action>
+  <action name="actionOpenPointCloud">
+   <property name="text">
+    <string>Open Point Cloud</string>
+   </property>
+  </action>
+  <action name="actionSavePointCloud">
+   <property name="text">
+    <string>Save Point Cloud</string>
+   </property>
+  </action>
+  <action name="actionNormalEstimation">
+   <property name="text">
+    <string>Normal Estimation</string>
+   </property>
+  </action>
+  <action name="actionVoxelGridFilter">
+   <property name="text">
+    <string>Voxel Grid Filter</string>
+   </property>
+  </action>
+  <action name="actionTogglePointCloud">
+   <property name="text">
+    <string>Toggle Point Cloud</string>
+   </property>
+  </action>
+  <action name="actionToggleCloudNormals">
+   <property name="text">
+    <string>Toggle Cloud Normals</string>
+   </property>
+  </action>
+  <action name="actionColorizeOriginal">
+   <property name="text">
+    <string>Colorize Original</string>
+   </property>
+  </action>
+  <action name="actionColorizeUniform">
+   <property name="text">
+    <string>Colorize Uniform</string>
+   </property>
+  </action>
+  <action name="actionNormalOrientation">
+   <property name="text">
+    <string>Normal Orientation</string>
+   </property>
+  </action>
+  <action name="actionToggleMeshModels">
+   <property name="text">
+    <string>Toggle Mesh Models</string>
+   </property>
+  </action>
+  <action name="actionFlipAllNormals">
+   <property name="text">
+    <string>Flip All Normals</string>
+   </property>
+  </action>
+  <action name="actionImportMeshModels">
+   <property name="text">
+    <string>Import Models</string>
+   </property>
+  </action>
+  <action name="actionClearMeshModels">
+   <property name="text">
+    <string>Clear Models</string>
+   </property>
+  </action>
+  <action name="actionToggleCloudDraggers">
+   <property name="text">
+    <string>Toggle Cloud Draggers</string>
+   </property>
+  </action>
+  <action name="actionSampleScan">
+   <property name="text">
+    <string>Sample Scan</string>
+   </property>
+  </action>
+  <action name="actionToggleCloudScalers">
+   <property name="text">
+    <string>Toggle Cloud Scalers</string>
+   </property>
+  </action>
+  <action name="actionVirtualScan">
+   <property name="text">
+    <string>Virtual Scan</string>
+   </property>
+  </action>
+  <action name="actionCurvatureEstimation">
+   <property name="text">
+    <string>Curvature Estimation</string>
+   </property>
+  </action>
+  <action name="actionBuildDistanceField">
+   <property name="text">
+    <string>Build Distance Field</string>
+   </property>
+  </action>
+  <action name="actionOpenDistanceField">
+   <property name="text">
+    <string>Open Distance Field</string>
+   </property>
+  </action>
+  <action name="actionSaveDistanceField">
+   <property name="text">
+    <string>Save Distance Field</string>
+   </property>
+  </action>
+  <action name="actionToggleDistanceField">
+   <property name="text">
+    <string>Toggle Distance Field</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="main_window.qrc"/>
+ </resources>
+ <connections/>
+</ui>

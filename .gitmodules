@@ -1,0 +1,4 @@
+[submodule "backends/caffe"]
+	path = backends/caffe
+	url = https://github.com/yangyanli/caffe.git
+	branch = field_probing
