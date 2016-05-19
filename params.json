@@ -1,6 +1,6 @@
 {
   "name": "FPNN",
   "tagline": "FPNN: Field Probing Neural Networks for 3D Data",
-  "body": "Created by <a href=\"http://web.stanford.edu/~yangyan/\" target=\"_blank\">Yangyan Li</a>, <a href=\"http://www.pirk.info/\" target=\"_blank\">Soeren Pirk</a>, <a href=\"http://ai.stanford.edu/~haosu/\" target=\"_blank\">Hao Su</a>, <a href=\"http://web.stanford.edu/~rqi/\" target=\"_blank\">Charles Ruizhongtai Qi</a>, and <a href=\"http://geometry.stanford.edu/member/guibas/\" target=\"_blank\">Leonidas J. Guibas</a> from Stanford University.\r\n\r\n### Introduction\r\nWe propose a light-weight way to learn features from 3D data.\r\n",
+  "body": "Created by <a href=\"http://web.stanford.edu/~yangyan/\" target=\"_blank\">Yangyan Li</a>, <a href=\"http://www.pirk.info/\" target=\"_blank\">Soeren Pirk</a>, <a href=\"http://ai.stanford.edu/~haosu/\" target=\"_blank\">Hao Su</a>, <a href=\"http://web.stanford.edu/~rqi/\" target=\"_blank\">Charles Ruizhongtai Qi</a>, and <a href=\"http://geometry.stanford.edu/member/guibas/\" target=\"_blank\">Leonidas J. Guibas</a> from Stanford University.\r\n\r\n### Introduction\r\nWe propose a light-weight way for learning features from 3D data.\r\n",
   "note": "Don't delete this file! It's used internally to help with page regeneration."
 }
