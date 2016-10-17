@@ -1,0 +1,164 @@
+name: "FPNN"
+layer {
+  name: "data"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  data_param {
+    source: "/home/yangyan/FPNN/ModelNet/ModelNet40_DF/lmdb_64_train"
+    batch_size: 256 
+    backend: LMDB
+  }
+}
+
+layer {
+  name: "data"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  data_param {
+    source: "/home/yangyan/FPNN/ModelNet/ModelNet40_DF/lmdb_64_test"
+    batch_size: 128
+    backend: LMDB
+  }
+}
+
+layer {
+  name: "transform_3d"
+  type: "Transform3D"
+  bottom: "data"
+  bottom: "label"
+  top: "distance_field_trans"
+  top: "label_trans"
+  transform_3d_param {
+    min_rotation_x: 0
+    max_rotation_x: 0
+    min_rotation_y: 0
+    max_rotation_y: 0
+    min_rotation_z: 0
+    max_rotation_z: 360
+    num_transformations: 4
+    pad_value: 100
+  }
+}
+
+layer {
+  name: "field_probing"
+  type: "FieldProbing"
+  bottom: "distance_field_trans"
+  top: "distances"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  field_probing_param {
+    num_sliding: 1
+    padding: 0
+    num_filter: 1024
+    len_filter: 8
+    min_span: 0.1 
+    max_span: 0.4 
+  }
+}
+
+layer {
+  name: "gaussian"
+  type: "Gaussian"
+  bottom: "distances"
+  top: "distances"
+  gaussian_param {
+    sigma: 8
+  }
+}
+
+layer {
+  name: "dp"
+  type: "DotProduct"
+  bottom: "distances"
+  top: "dp"
+  param {
+    lr_mult: 0
+    decay_mult: 0
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  dot_product_param {
+    weight_filler {
+      type: "gaussian"
+      std: 0.05
+    }   
+    bias_filler {
+      type: "constant"
+      value: 1
+    }   
+    share_weights: false
+  }
+}
+
+layer {
+  name: "bn_dp"
+  type: "BatchNorm"
+  bottom: "dp"
+  top: "dp"
+}
+
+layer {
+  name: "relu_dp"
+  type: "ReLU"
+  bottom: "dp"
+  top: "dp"
+}
+
+layer {
+  name: "fc3_loss"
+  type: "InnerProduct"
+  bottom: "dp"
+  top: "fc3_loss"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 40
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "fc3_loss"
+  bottom: "label_trans"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+  accuracy_param {
+    top_k: 1
+  }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "fc3_loss"
+  bottom: "label_trans"
+  top: "loss"
+}
