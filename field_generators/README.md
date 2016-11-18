@@ -1,4 +1,2 @@
 # Field Generators
-Code for generating input fields to CurvNN.
-
-Coming soon...
+Code for generating input fields to FPNN.
